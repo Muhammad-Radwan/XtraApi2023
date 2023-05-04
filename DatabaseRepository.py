@@ -202,4 +202,7 @@ def GetVoucherDetails(guide):
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return dfjson
 
-
+def AddUser(UsGuide, UserName, Password):
+    cursor.execute(f"""Insert into tbl013(UsGuide, UserName, Password, Security, UserLanguage, ShowInDropDown) 
+    Values('{UsGuide}', N'{UserName}', '{Password}', 1, -1, 1)""")
+    cursor.commit()

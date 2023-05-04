@@ -57,5 +57,16 @@ def GetVoucherDetails():
     guide = request.args.get('guide')
     return repo.GetVoucherDetails(guide)
 
+@app.route('/AddUser', methods=['POST'])
+def AddUser():
+    response = request.json
+    usguide = response['usguide']
+    username = response['username']
+    password = response['password']
+
+    repo.AddUser(usguide, username, password)
+    return response
+
+
 if(__name__ == '__main__'):
     app.run('0.0.0.0', port=8084)
