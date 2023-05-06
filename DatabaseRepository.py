@@ -207,19 +207,22 @@ def AddUser(UsGuide, UserName, Password):
     Values('{UsGuide}', N'{UserName}', '{Password}', 1, -1, 1)""")
     cursor.commit()
 
-def AddVoucher(cardguide, mainguide, date, currencyguide, debitaccount, creditaccount, project, branch, costcenter, value, rate, notes):
+def AddVoucher(cardguide, mainguide, date, currencyguide, debitaccount, creditaccount, value, rate, notes):
     cursor.execute(f"""insert into tbl010(CardGuide, BondNumber, Posted, Security, MainGuide, BondDate, DoneIn, InsertedIn,
     CurrencyGuide, AccountGuide, AccountGuide2, Value, Rate, Notes)
     Values('{cardguide}', (select ISNULL(MAX(bondnumber), 1) from TBL010 where MainGuide = '{mainguide}'), 
     1, 1, '{mainguide}', '{date}', '{date}', '{date}',
-    '{currencyguide}', '{debitaccount}', '{creditaccount}', {value}, {rate}, '{notes}')""")
+    '{currencyguide}', '{debitaccount}', '{creditaccount}', {value}, {rate}, N'{notes}')""")
     cursor.commit()
     #Debit Row
-    cursor.execute(f"""insert into tbl038(MainGuide, AccountGuide, CurrencyGuide, Debit, Credit, Notes)
-    values('{mainguide}', '{debitaccount}', '{currencyguide}', {value}, 0, 'notes')""")
-    cursor.commit()
+    # cursor.execute(f"""insert into tbl038(MainGuide, AccountGuide, CurrencyGuide, Debit, DebitRate, Credit, CreditRate, Notes)
+    # values('{cardguide}', '{debitaccount}', '{currencyguide}', {value}, {value}, 0, 0, N'{notes}')""")
+    # cursor.commit()
+    #/\/\/\/\/\/\/\/\
     #Credit Row
-    cursor.execute(f"""insert into tbl038(MainGuide, AccountGuide, CurrencyGuide, Debit, Credit, Notes)
-    values('{mainguide}', '{creditaccount}', '{currencyguide}', 0, {value}, 'notes')""")
+    cursor.execute(f"""insert into tbl038(MainGuide, AccountGuide, CurrencyGuide, Debit, DebitRate, Credit, CreditRate, Notes)
+    values('{cardguide}', '{creditaccount}', '{currencyguide}', 0, 0, {value}, {value}, N'{notes}')""")
+    cursor.commit()
+    cursor.execute(f"""exec dbo.Prc027 '{cardguide}', 0""")
     cursor.commit()
 

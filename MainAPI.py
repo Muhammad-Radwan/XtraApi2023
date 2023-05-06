@@ -76,15 +76,15 @@ def AddVoucher():
     currencyguide = response['currencyguide']
     debitaccount = response['debitaccount']
     creditaccount = response['creditaccount']
-    project = response['project']
-    branch = response['branch']
-    costcenter = response['costcenter']
+    # project = response['project']
+    # branch = response['branch']
+    # costcenter = response['costcenter']
     value = response['value']
     rate = response['rate']
     notes = response['notes']
 
     repo.AddVoucher(cardguide, mainguide, date, currencyguide, debitaccount,
-                    creditaccount, project, branch, costcenter, value, rate, notes)
+                    creditaccount, value, rate, notes)
     return response
 
 
