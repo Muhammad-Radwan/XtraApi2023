@@ -67,8 +67,8 @@ def AddUser():
     repo.AddUser(usguide, username, password)
     return response
 
-@app.route('/AddVoucher', methods=['POST'])
-def AddVoucher():
+@app.route('/AddReceiptVoucher', methods=['POST'])
+def AddReceiptVoucher():
     response = request.json
     cardguide = response['cardguide']
     mainguide = response['mainguide']
@@ -76,14 +76,30 @@ def AddVoucher():
     currencyguide = response['currencyguide']
     debitaccount = response['debitaccount']
     creditaccount = response['creditaccount']
-    # project = response['project']
-    # branch = response['branch']
-    # costcenter = response['costcenter']
+
     value = response['value']
     rate = response['rate']
     notes = response['notes']
 
-    repo.AddVoucher(cardguide, mainguide, date, currencyguide, debitaccount,
+    repo.AddReceiptVoucher(cardguide, mainguide, date, currencyguide, debitaccount,
+                    creditaccount, value, rate, notes)
+    return response
+
+@app.route('/AddPaymentVoucher', methods=['POST'])
+def AddPaymentVoucher():
+    response = request.json
+    cardguide = response['cardguide']
+    mainguide = response['mainguide']
+    date = response['date']
+    currencyguide = response['currencyguide']
+    debitaccount = response['debitaccount']
+    creditaccount = response['creditaccount']
+
+    value = response['value']
+    rate = response['rate']
+    notes = response['notes']
+
+    repo.AddPaymentVoucher(cardguide, mainguide, date, currencyguide, debitaccount,
                     creditaccount, value, rate, notes)
     return response
 
