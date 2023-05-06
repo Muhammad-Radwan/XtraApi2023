@@ -206,3 +206,20 @@ def AddUser(UsGuide, UserName, Password):
     cursor.execute(f"""Insert into tbl013(UsGuide, UserName, Password, Security, UserLanguage, ShowInDropDown) 
     Values('{UsGuide}', N'{UserName}', '{Password}', 1, -1, 1)""")
     cursor.commit()
+
+def AddVoucher(cardguide, mainguide, date, currencyguide, debitaccount, creditaccount, project, branch, costcenter, value, rate, notes):
+    cursor.execute(f"""insert into tbl010(CardGuide, BondNumber, Posted, Security, MainGuide, BondDate, DoneIn, InsertedIn,
+    CurrencyGuide, AccountGuide, AccountGuide2, Value, Rate, Notes)
+    Values('{cardguide}', (select ISNULL(MAX(bondnumber), 1) from TBL010 where MainGuide = '{mainguide}'), 
+    1, 1, '{mainguide}', '{date}', '{date}', '{date}',
+    '{currencyguide}', '{debitaccount}', '{creditaccount}', {value}, {rate}, '{notes}')""")
+    cursor.commit()
+    #Debit Row
+    cursor.execute(f"""insert into tbl038(MainGuide, AccountGuide, CurrencyGuide, Debit, Credit, Notes)
+    values('{mainguide}', '{debitaccount}', '{currencyguide}', {value}, 0, 'notes')""")
+    cursor.commit()
+    #Credit Row
+    cursor.execute(f"""insert into tbl038(MainGuide, AccountGuide, CurrencyGuide, Debit, Credit, Notes)
+    values('{mainguide}', '{creditaccount}', '{currencyguide}', 0, {value}, 'notes')""")
+    cursor.commit()
+
