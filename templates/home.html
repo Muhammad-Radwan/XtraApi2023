@@ -18,8 +18,9 @@
     <p>API Bootstraper</p>
   </div>
   <main>
-      <h2 class="h2">General Get Endpoint</h2>
-      <h5 class="h5">Parameters:</h5>
+    <h2 class="h2">General Get Endpoint</h2>
+    <button type="button" class="btn btn-success">/Get</button>
+    <h5 class="h5">Parameters:</h5>
     <table class="table table-striped">
       <thead>
         <tr>
@@ -48,6 +49,54 @@
           <td>qn=3</td>
           <td>Gets All Cost Centers</td>
           <td><a target="_blank" href="http://localhost:8083/GeneralGet?qn=3">Get All Cost Centers</a></td>
+        </tr>
+        <tr>
+          <td>qn=9</td>
+          <td>Get All Voucher Types</td>
+          <td><a target="_blank" href="http://localhost:8083/GeneralGet?qn=9">Get All Voucher Types</a></td>
+        </tr>
+        <tr>
+          <td>qn=10</td>
+          <td>Get All Invoice Types</td>
+          <td><a target="_blank" href="http://localhost:8083/GeneralGet?qn=10">Get All Invoice Types</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 class="h2">Get Ledger Endpoint</h2>
+    <button type="button" class="btn btn-success">/Get</button>
+    <h5 class="h5">Parameters:</h5>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Paramter</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>d1</td>
+          <td>Date</td>
+        </tr>
+        <tr>
+          <td>d2</td>
+          <td>Date</td>
+        </tr>
+        <tr>
+          <td>accountname</td>
+          <td>String</td>
+        </tr>
+        <tr>
+          <td>costcenter</td>
+          <td>Uniqueidentifier</td>
+        </tr>
+        <tr>
+          <td>project</td>
+          <td>Uniqueidentifier</td>
+        </tr>
+        <tr>
+          <td>branch</td>
+          <td>Uniqueidentifier</td>
         </tr>
       </tbody>
     </table>

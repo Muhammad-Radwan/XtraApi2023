@@ -70,9 +70,16 @@ group by b.AccountName"""
 
 GetSysInfoQuery = "select * from tbl000 where id=1"
 GetCostCentersQuery = "select CardGuide, CardCode, CostCenter as CardName from tbl005"
+
 GetItemGroupsQuery = "select CardGuide, CardCode, GroupName as CardName from tbl006"
+
 GetProjectsQuery = "select CardGuide, CardCode, ProjectName as CardName from tbl049"
+
 GetBranchesQuery = "select CardGuide, CardCode, BronchName as CardName from tbl050"
+
+GetVoucherTypesQuery = """select CardGuide, EntryName as CardName from tbl009 where CardGuide != '00000000-0000-0000-0000-000000000000'"""
+
+GetInvoiceTypesQuery = "select CardGuide, InvoiceName as CardName from tbl020"
 
 def GetData(query_no):
     query = ''
@@ -95,6 +102,10 @@ def GetData(query_no):
             query = GetSysInfoQuery
         case '8':
             query = GetAgentBalanceQuery
+        case '9':
+            query = GetVoucherTypesQuery
+        case '10':
+            query = GetInvoiceTypesQuery
     df = pandas.read_sql(query, conn)
     json = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return(json)
