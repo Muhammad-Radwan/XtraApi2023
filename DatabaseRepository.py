@@ -141,7 +141,7 @@ def GetLedger(d1, d2, accountname, costcenter, project, branch):
     return(json)
 
 def GetInvoiceHeadByGuide(invoiceguide):
-    df = pandas.read_sql(f"""select tbl022.CardGuide, tbl020.InvoiceName, tbl008.WarehouseName, BillDate, PayMethod, tbl001.CurrencyName, BillNumber, tbl022.Rate, 
+    df = pandas.read_sql(f"""select tbl022.CardGuide, tbl020.InvoiceName, tbl008.WarehouseName, BillDate, (Case when PayMethod = 1 then N'نقداً' when PayMethod = 2 then N'آجل' when PayMethod = 3 then N'مصرف' end) as PayMethod, tbl001.CurrencyName, BillNumber, tbl022.Rate, 
                         tbl016.AgentName, tbl004.AccountName, tbl013.UserName, sum(tbl023.TotalValue) as BillTotal
                         from tbl022
                         inner join tbl020 on tbl022.MainGuide = tbl020.CardGuide
@@ -159,7 +159,7 @@ def GetInvoiceHeadByGuide(invoiceguide):
     return(json)
     
 def GetInvoiceHead(d1, d2, agentName):
-    df = pandas.read_sql(f"""select tbl022.CardGuide, tbl020.InvoiceName, tbl008.WarehouseName, BillDate, PayMethod, tbl001.CurrencyName, BillNumber, tbl022.Rate, 
+    df = pandas.read_sql(f"""select tbl022.CardGuide, tbl020.InvoiceName, tbl008.WarehouseName, BillDate, (Case when PayMethod = 1 then N'نقداً' when PayMethod = 2 then N'آجل' when PayMethod = 3 then N'مصرف' end) as PayMethod, tbl001.CurrencyName, BillNumber, tbl022.Rate, 
                         tbl016.AgentName, tbl004.AccountName, tbl013.UserName, sum(tbl023.TotalValue) as BillTotal
                         from tbl022
                         inner join tbl020 on tbl022.MainGuide = tbl020.CardGuide
