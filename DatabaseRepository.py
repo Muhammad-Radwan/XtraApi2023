@@ -185,12 +185,13 @@ def GetInvoiceDetails(invoiceGuide):
     return(dfjson)
 
 def GetDailyInvoices(d1 ,d2):
-    df = pandas.read_sql(f"""select c.InvoiceName, sum(a.TotalValue) as InvoiceTotal, (select COUNT(tbl022.id) from tbl022 inner join tbl020 on tbl020.CardGuide = tbl022.MainGuide where tbl020.InvoiceName = c.InvoiceName) as TotalInvoices 
-                        from TBL023 a
-                        inner join tbl022 b on b.CardGuide = a.MainGuide
-                        inner join tbl020 c on c.CardGuide = b.MainGuide
-                        where b.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
-                        group by c.InvoiceName""", conn)
+    df = pandas.read_sql(f"""select c.InvoiceName, sum(a.TotalValue) as InvoiceTotal, (select COUNT(tbl022.id) from tbl022 inner join tbl020 on tbl020.CardGuide = tbl022.MainGuide where tbl020.InvoiceName = c.InvoiceName
+                            and tbl022.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')) as TotalInvoices 
+                            from TBL023 a
+                            inner join tbl022 b on b.CardGuide = a.MainGuide
+                            inner join tbl020 c on c.CardGuide = b.MainGuide
+                            where b.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
+                            group by c.InvoiceName""", conn)
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return dfjson
 
@@ -214,13 +215,15 @@ def GetDailyInvoicesByType(d1 ,d2, invoicetype):
     return(json)    
 
 def GetDailyVouchers(d1, d2):
-    df = pandas.read_sql(f"""select c.InvoiceName, sum(a.TotalValue) as InvoiceTotal, (select COUNT(tbl022.id) from tbl022 inner join tbl020 on tbl020.CardGuide = tbl022.MainGuide where tbl020.InvoiceName = c.InvoiceName
-and tbl022.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')) as TotalInvoices 
-from TBL023 a
-inner join tbl022 b on b.CardGuide = a.MainGuide
-inner join tbl020 c on c.CardGuide = b.MainGuide
-where b.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
-group by c.InvoiceName""", conn)
+    df = pandas.read_sql(f"""select c.EntryName, sum(debit) As Debit, sum(credit) as Credit, sum(Debit - Credit) as Balance,
+    (select count(tbl010.id) from tbl010 inner join tbl009 on tbl009.CardGuide = tbl010.MainGuide where TBL009.EntryName = c.EntryName
+    and tbl010.BondDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}'))
+    as TotalEntries
+    from TBL038 a
+    inner join tbl010 b on b.CardGuide = a.MainGuide
+    inner join tbl009 c on c.CardGuide = b.MainGuide
+    where b.BondDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
+    group by c.EntryName""", conn)
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return dfjson
 
