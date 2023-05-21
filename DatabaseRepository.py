@@ -81,6 +81,8 @@ GetVoucherTypesQuery = """select CardGuide, EntryName as CardName from tbl009 wh
 
 GetInvoiceTypesQuery = "select CardGuide, InvoiceName as CardName from tbl020"
 
+GetCurrenciesQuery = "select * from tbl001"
+
 def GetData(query_no):
     query = ''
     match query_no:
@@ -106,6 +108,8 @@ def GetData(query_no):
             query = GetVoucherTypesQuery
         case '10':
             query = GetInvoiceTypesQuery
+        case '11':
+            query = GetCurrenciesQuery
     df = pandas.read_sql(query, conn)
     json = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return(json)
@@ -180,15 +184,43 @@ def GetInvoiceDetails(invoiceGuide):
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return(dfjson)
 
+def GetDailyInvoices(d1 ,d2):
+    df = pandas.read_sql(f"""select c.InvoiceName, sum(a.TotalValue) as InvoiceTotal, (select COUNT(tbl022.id) from tbl022 inner join tbl020 on tbl020.CardGuide = tbl022.MainGuide where tbl020.InvoiceName = c.InvoiceName) as TotalInvoices 
+                        from TBL023 a
+                        inner join tbl022 b on b.CardGuide = a.MainGuide
+                        inner join tbl020 c on c.CardGuide = b.MainGuide
+                        where b.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
+                        group by c.InvoiceName""", conn)
+    dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
+    return dfjson
+
+def GetDailyInvoicesByType(d1 ,d2, invoicetype):
+    df = pandas.read_sql(f"""select tbl022.CardGuide, tbl020.InvoiceName, tbl008.WarehouseName, BillDate, (Case when PayMethod = 1 then N'نقداً' when PayMethod = 2 then N'آجل' when PayMethod = 3 then N'مصرف' end) as PayMethod, tbl001.CurrencyName, BillNumber, tbl022.Rate, 
+                        tbl016.AgentName, tbl004.AccountName, tbl013.UserName, sum(tbl023.TotalValue) as BillTotal
+                        from tbl022
+                        inner join tbl020 on tbl022.MainGuide = tbl020.CardGuide
+                        inner join tbl008 on tbl022.StoreGuide = tbl008.CardGuide
+                        inner join tbl001 on tbl022.CurrencyGuide = tbl001.CardGuide
+                        inner join tbl016 on tbl022.AgentGuide = tbl016.CardGuide
+                        inner join tbl004 on tbl022.PostToAccount = tbl004.CardGuide
+                        inner join tbl013 on tbl022.ByUser = tbl013.UsGuide
+                        inner join tbl023 on tbl023.MainGuide = tbl022.CardGuide
+                        where tbl020.CardGuide = (select CardGuide from tbl020 where InvoiceName = N'{invoicetype}')
+						and tbl022.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
+                        group by tbl022.CardGuide, tbl020.InvoiceName, tbl008.WarehouseName, BillDate, PayMethod, tbl001.CurrencyName, BillNumber, tbl022.Rate, 
+                        tbl016.AgentName, tbl004.AccountName, tbl013.UserName
+                        order by BillDate""", conn)
+    json = df.to_json(orient='records', date_format='iso', force_ascii=False)
+    return(json)    
+
 def GetDailyVouchers(d1, d2):
-    df = pandas.read_sql(f"""select c.EntryName, sum(debit) As Debit, sum(credit) as Credit, sum(Debit - Credit) as Balance,
-    (select count(tbl010.id) from tbl010 inner join tbl009 on tbl009.CardGuide = tbl010.MainGuide where TBL009.EntryName = c.EntryName)
-    as TotalEntries
-    from TBL038 a
-    inner join tbl010 b on b.CardGuide = a.MainGuide
-    inner join tbl009 c on c.CardGuide = b.MainGuide
-    where b.DoneIn between CONVERT(date, '{d1}') and CONVERT(date, '{d2}')
-    group by c.EntryName""", conn)
+    df = pandas.read_sql(f"""select c.InvoiceName, sum(a.TotalValue) as InvoiceTotal, (select COUNT(tbl022.id) from tbl022 inner join tbl020 on tbl020.CardGuide = tbl022.MainGuide where tbl020.InvoiceName = c.InvoiceName
+and tbl022.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')) as TotalInvoices 
+from TBL023 a
+inner join tbl022 b on b.CardGuide = a.MainGuide
+inner join tbl020 c on c.CardGuide = b.MainGuide
+where b.BillDate between CONVERT(datetime, '{d1}') and CONVERT(datetime, '{d2}')
+group by c.InvoiceName""", conn)
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return dfjson
 
