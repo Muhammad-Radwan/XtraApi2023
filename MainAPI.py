@@ -57,6 +57,19 @@ def GetVoucherDetails():
     guide = request.args.get('guide')
     return repo.GetVoucherDetails(guide)
 
+@app.route('/GetDailyInvoices', methods=['GET'])
+def GetDailyInvoices():
+    start_date = request.args.get('d1')
+    finish_date = request.args.get('d2')
+    return repo.GetDailyInvoices(start_date, finish_date)
+
+@app.route('/GetDailyInvoicesByType', methods=['GET'])
+def GetDailyInvoicesByType():
+    start_date = request.args.get('d1')
+    finish_date = request.args.get('d2')
+    invoice_type = request.args.get('invoicetype')
+    return repo.GetDailyInvoicesByType(start_date, finish_date, invoice_type)
+
 @app.route('/AddUser', methods=['POST'])
 def AddUser():
     response = request.json
