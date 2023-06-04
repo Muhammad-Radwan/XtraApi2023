@@ -248,6 +248,31 @@ def GetVoucherDetails(guide):
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return dfjson
 
+def GetItemPrice(barcode, pricetype, currency):
+    df = pandas.read_sql(f"""declare @price_type int
+    set @price_type = {pricetype}
+    select ProductName,
+    (case 
+    when @price_type = 1 then tbl007.EndUserPrice
+    when @price_type = 2 then tbl007.WholePrice
+    when @price_type = 3 then tbl007.AgentPrice
+    when @price_type = 4 then tbl007.Price5Item
+    when @price_type = 5 then tbl007.Price6Item
+    when @price_type = 6 then tbl007.Price7Item
+    end) as LocalPrice, 
+    (case
+    when @price_type = 1 then tbl007.EndUserPrice * (select dbo.Fun006('{currency}', null, GETDATE()))
+    when @price_type = 2 then tbl007.WholePrice * (select dbo.Fun006('{currency}', null, GETDATE())) 
+    when @price_type = 3 then tbl007.AgentPrice * (select dbo.Fun006('{currency}', null, GETDATE())) 
+    when @price_type = 4 then tbl007.Price5Item * (select dbo.Fun006('{currency}', null, GETDATE())) 
+    when @price_type = 5 then tbl007.Price6Item * (select dbo.Fun006('{currency}', null, GETDATE())) 
+    when @price_type = 6 then tbl007.Price7Item * (select dbo.Fun006('{currency}', null, GETDATE())) 
+    end) as SecondaryPrice from tbl007 
+    left join tbl128 on tbl128.mainGuide = tbl007.CardGuide
+    where tbl007.barcode = '{barcode}' or tbl128.Barcode = '{barcode}'""", conn)
+    dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
+    return dfjson
+
 def AddUser(UsGuide, UserName, Password):
     cursor.execute(f"""Insert into tbl013(UsGuide, UserName, Password, Security, UserLanguage, ShowInDropDown) 
     Values('{UsGuide}', N'{UserName}', '{Password}', 1, -1, 1)""")

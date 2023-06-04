@@ -70,6 +70,13 @@ def GetDailyInvoicesByType():
     invoice_type = request.args.get('invoicetype')
     return repo.GetDailyInvoicesByType(start_date, finish_date, invoice_type)
 
+@app.route('/GetItemPrice', methods=['GET'])
+def GetItemPrice():
+    barcode = request.args.get('barcode')
+    prictype = request.args.get('prictype')
+    currency = request.args.get('currency')
+    return repo.GetItemPrice(barcode, prictype, currency)
+
 @app.route('/AddUser', methods=['POST'])
 def AddUser():
     response = request.json
