@@ -1,7 +1,7 @@
 import pandas
 import pyodbc
 
-connString = "Driver={SQL Server}; Server=gh93st\SQLExpress; Database=XtrDB02_05_2023; UID=sa; pwd=123456"
+connString = "Driver={SQL Server}; Server=gh93st\SQLExpress; Database=XtrDB16_005_2023; UID=sa; pwd=123456"
 conn = pyodbc.connect(connString)
 cursor = conn.cursor()
 
@@ -262,11 +262,11 @@ def GetItemPrice(barcode, pricetype, currency):
     end) as LocalPrice, 
     (case
     when @price_type = 1 then tbl007.EndUserPrice * (select dbo.Fun006('{currency}', null, GETDATE()))
-    when @price_type = 2 then tbl007.WholePrice * (select dbo.Fun006('{currency}', null, GETDATE())) 
-    when @price_type = 3 then tbl007.AgentPrice * (select dbo.Fun006('{currency}', null, GETDATE())) 
-    when @price_type = 4 then tbl007.Price5Item * (select dbo.Fun006('{currency}', null, GETDATE())) 
-    when @price_type = 5 then tbl007.Price6Item * (select dbo.Fun006('{currency}', null, GETDATE())) 
-    when @price_type = 6 then tbl007.Price7Item * (select dbo.Fun006('{currency}', null, GETDATE())) 
+    when @price_type = 2 then tbl007.WholePrice * (select dbo.Fun006('{currency}', null, GETDATE()))
+    when @price_type = 3 then tbl007.AgentPrice * (select dbo.Fun006('{currency}', null, GETDATE()))
+    when @price_type = 4 then tbl007.Price5Item * (select dbo.Fun006('{currency}', null, GETDATE()))
+    when @price_type = 5 then tbl007.Price6Item * (select dbo.Fun006('{currency}', null, GETDATE()))
+    when @price_type = 6 then tbl007.Price7Item * (select dbo.Fun006('{currency}', null, GETDATE()))
     end) as SecondaryPrice from tbl007 
     left join tbl128 on tbl128.mainGuide = tbl007.CardGuide
     where tbl007.barcode = '{barcode}' or tbl128.Barcode = '{barcode}'""", conn)

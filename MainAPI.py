@@ -73,9 +73,9 @@ def GetDailyInvoicesByType():
 @app.route('/GetItemPrice', methods=['GET'])
 def GetItemPrice():
     barcode = request.args.get('barcode')
-    prictype = request.args.get('prictype')
+    pricetype = request.args.get('pricetype')
     currency = request.args.get('currency')
-    return repo.GetItemPrice(barcode, prictype, currency)
+    return repo.GetItemPrice(barcode, pricetype, currency)
 
 @app.route('/AddUser', methods=['POST'])
 def AddUser():
