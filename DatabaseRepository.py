@@ -249,7 +249,11 @@ def GetVoucherDetails(guide):
     return dfjson
 
 def GetItemPrice(barcode, pricetype, currency):
-    df = pandas.read_sql(f"""declare @price_type int
+    df = pandas.read_sql(f"""
+    declare @price_type int
+    declare @SecondCurrency uniqueidentifier
+                         
+    set @SecondCurrency = '{currency}'
     set @price_type = {pricetype}
     select ProductName,
     (case 
@@ -259,15 +263,18 @@ def GetItemPrice(barcode, pricetype, currency):
     when @price_type = 4 then tbl007.Price5Item
     when @price_type = 5 then tbl007.Price6Item
     when @price_type = 6 then tbl007.Price7Item
-    end) as LocalPrice, 
+    end) as LocalPrice,
+    (select top 1(CurrencyShortcut) from tbl001) as LocalPriceShortCut, 
     (case
-    when @price_type = 1 then tbl007.EndUserPrice * (select dbo.Fun006('{currency}', null, GETDATE()))
-    when @price_type = 2 then tbl007.WholePrice * (select dbo.Fun006('{currency}', null, GETDATE()))
-    when @price_type = 3 then tbl007.AgentPrice * (select dbo.Fun006('{currency}', null, GETDATE()))
-    when @price_type = 4 then tbl007.Price5Item * (select dbo.Fun006('{currency}', null, GETDATE()))
-    when @price_type = 5 then tbl007.Price6Item * (select dbo.Fun006('{currency}', null, GETDATE()))
-    when @price_type = 6 then tbl007.Price7Item * (select dbo.Fun006('{currency}', null, GETDATE()))
-    end) as SecondaryPrice from tbl007 
+    when @price_type = 1 then tbl007.EndUserPrice * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
+    when @price_type = 2 then tbl007.WholePrice * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
+    when @price_type = 3 then tbl007.AgentPrice * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
+    when @price_type = 4 then tbl007.Price5Item * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
+    when @price_type = 5 then tbl007.Price6Item * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
+    when @price_type = 6 then tbl007.Price7Item * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
+    end) as SecondaryPrice,
+    (select CurrencyShortcut from tbl001 where CardGuide = @SecondCurrency) as SecondaryCurrencyShortcut
+    from tbl007 
     left join tbl128 on tbl128.mainGuide = tbl007.CardGuide
     where tbl007.barcode = '{barcode}' or tbl128.Barcode = '{barcode}'""", conn)
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
