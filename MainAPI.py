@@ -77,6 +77,16 @@ def GetItemPrice():
     currency = request.args.get('currency')
     return repo.GetItemPrice(barcode, pricetype, currency)
 
+@app.route('/GetRateValue', methods=['GET'])
+def GetRateValue():
+    currency = request.args.get('currency')
+    return repo.GetRateValue(currency)
+
+@app.route('/GetRateValue2', methods=['GET'])
+def GetRateValue2():
+    currency = request.args.get('currency')
+    return repo.GetRateValue2(currency)
+
 @app.route('/AddUser', methods=['POST'])
 def AddUser():
     response = request.json

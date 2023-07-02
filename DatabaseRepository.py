@@ -69,6 +69,7 @@ inner join tbl004 b on b.CardGuide = a.AccountGuide
 group by b.AccountName"""
 
 GetSysInfoQuery = "select * from tbl000 where id=1"
+
 GetCostCentersQuery = "select CardGuide, CardCode, CostCenter as CardName from tbl005"
 
 GetItemGroupsQuery = "select CardGuide, CardCode, GroupName as CardName from tbl006"
@@ -249,34 +250,17 @@ def GetVoucherDetails(guide):
     return dfjson
 
 def GetItemPrice(barcode, pricetype, currency):
-    df = pandas.read_sql(f"""
-    declare @price_type int
-    declare @SecondCurrency uniqueidentifier
-                         
-    set @SecondCurrency = '{currency}'
-    set @price_type = {pricetype}
-    select ProductName,
-    (case 
-    when @price_type = 1 then tbl007.EndUserPrice
-    when @price_type = 2 then tbl007.WholePrice
-    when @price_type = 3 then tbl007.AgentPrice
-    when @price_type = 4 then tbl007.Price5Item
-    when @price_type = 5 then tbl007.Price6Item
-    when @price_type = 6 then tbl007.Price7Item
-    end) as LocalPrice,
-    (select top 1(CurrencyShortcut) from tbl001) as LocalPriceShortCut, 
-    (case
-    when @price_type = 1 then tbl007.EndUserPrice * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
-    when @price_type = 2 then tbl007.WholePrice * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
-    when @price_type = 3 then tbl007.AgentPrice * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
-    when @price_type = 4 then tbl007.Price5Item * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
-    when @price_type = 5 then tbl007.Price6Item * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
-    when @price_type = 6 then tbl007.Price7Item * (select dbo.Fun006('FAB5CE98-2006-45B8-8E16-A1E1390553CA', null, GETDATE()))
-    end) as SecondaryPrice,
-    (select CurrencyShortcut from tbl001 where CardGuide = @SecondCurrency) as SecondaryCurrencyShortcut
-    from tbl007 
-    left join tbl128 on tbl128.mainGuide = tbl007.CardGuide
-    where tbl007.barcode = '{barcode}' or tbl128.Barcode = '{barcode}'""", conn)
+    df = pandas.read_sql(f"select * from [dbo].[Fun_searchPriceitem]({pricetype}, '{currency}','{barcode}')", conn)
+    dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
+    return dfjson
+
+def GetRateValue(currency):
+    df = pandas.read_sql(f"select dbo.Fun006('{currency}', null, GETDATE()) as RatePrice", conn)
+    dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
+    return dfjson
+
+def GetRateValue2(currency):
+    df = pandas.read_sql(f"select 1 / dbo.Fun006('{currency}', null, GETDATE()) as RatePrice", conn)
     dfjson = df.to_json(orient='records', date_format='iso', force_ascii=False)
     return dfjson
 
